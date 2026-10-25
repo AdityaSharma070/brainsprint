@@ -118,6 +118,7 @@ app.post("/api/generate", readUpload, async function (req, res) {
     source = await getSourceText(req);
   } catch (err) {
     const msg = err.message === "BAD_TYPE" ? "Only PDF or TXT files are supported." : "Could not read that file.";
+    console.log("file read failed:", err.message);
     return res.status(400).json({ error: msg });
   }
 
