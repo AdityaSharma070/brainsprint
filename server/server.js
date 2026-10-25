@@ -146,8 +146,14 @@ async function getSourceText(req) {
 
   if (name.endsWith(".pdf")) {
     console.log("Processing PDF bytes securely:", req.file.size);
-    // pdf-parse-fork will safely handle req.file.buffer on Render without throwing XRef errors
-    const parsed = await pdfParse(req.file.buffer); 
+    
+    
+    const targetBuffer = req.file.buffer.buffer 
+      ? Buffer.from(req.file.buffer.buffer, req.file.buffer.byteOffset, req.file.buffer.byteLength)
+      : Buffer.from(req.file.buffer);
+
+    
+    const parsed = await pdfParse(targetBuffer); 
     return parsed.text;
   }
   
@@ -157,6 +163,7 @@ async function getSourceText(req) {
 
   throw new Error("BAD_TYPE");
 }
+
 
 app.post("/api/generate", readUpload, async function (req, res) {
   const difficulty = ["easy", "medium", "hard"].includes(req.body.difficulty) ? req.body.difficulty : "medium";
