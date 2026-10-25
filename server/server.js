@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const multer = require("multer");
-const pdfParse = require("pdf-parse-fork");
+const { pdfToText } = require("pdf-to-text");
 const mongoose = require("mongoose");
 const { GoogleGenAI } = require("@google/genai");
 
@@ -108,34 +108,7 @@ function readUpload(req, res, next) {
 
 //   throw new Error("BAD_TYPE");
 // }
-// async function getSourceText(req) {
-//   if (!req.file) {
-//     return (req.body.topic || "").trim();
-//   }
 
-//   const name = req.file.originalname.toLowerCase();
-
-//   if (name.endsWith(".pdf")) {
-//     try {
-//       // Create a clean, dedicated buffer sequence directly from the uploaded file
-//       const fresh = Buffer.from(req.file.buffer);
-//       console.log("Processing PDF bytes:", fresh.length);
-      
-//       const parsed = await pdfParse(fresh);
-//       return parsed.text;
-//     } catch (pdfErr) {
-//       console.error("PDF Parsing Library Error:", pdfErr.message);
-//       // Throwing BAD_TYPE maps directly to your existing error response handler below
-//       throw new Error("BAD_TYPE");
-//     }
-//   }
-  
-//   if (name.endsWith(".txt")) {
-//     return req.file.buffer.toString("utf8");
-//   }
-
-//   throw new Error("BAD_TYPE");
-// }
 
 async function getSourceText(req) {
   if (!req.file) {
@@ -145,16 +118,18 @@ async function getSourceText(req) {
   const name = req.file.originalname.toLowerCase();
 
   if (name.endsWith(".pdf")) {
-    console.log("Processing PDF bytes securely:", req.file.size);
+    console.log("Processing PDF bytes securely via pdf-to-text:", req.file.size);
     
-    
-    const targetBuffer = req.file.buffer.buffer 
-      ? Buffer.from(req.file.buffer.buffer, req.file.buffer.byteOffset, req.file.buffer.byteLength)
-      : Buffer.from(req.file.buffer);
-
-    
-    const parsed = await pdfParse(targetBuffer); 
-    return parsed.text;
+    // Convert the buffer to text using a Promise wrapper
+    return new Promise((resolve, reject) => {
+      pdfToText(req.file.buffer, (err, text) => {
+        if (err) {
+          console.error("PDF Parsing failed:", err.message);
+          return reject(new Error("BAD_TYPE"));
+        }
+        resolve(text);
+      });
+    });
   }
   
   if (name.endsWith(".txt")) {
