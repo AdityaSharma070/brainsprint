@@ -88,6 +88,26 @@ function readUpload(req, res, next) {
   });
 }
 
+// async function getSourceText(req) {
+//   if (!req.file) {
+//     return (req.body.topic || "").trim();
+//   }
+
+//   const name = req.file.originalname.toLowerCase();
+
+//     if (name.endsWith(".pdf")) {
+//     const fresh = Buffer.alloc(req.file.buffer.length);
+//     req.file.buffer.copy(fresh);
+//     console.log("pdf bytes:", req.file.size, "offset:", req.file.buffer.byteOffset);
+//     const parsed = await pdfParse(fresh);
+//     return parsed.text;
+//   }
+//   if (name.endsWith(".txt")) {
+//     return req.file.buffer.toString("utf8");
+//   }
+
+//   throw new Error("BAD_TYPE");
+// }
 async function getSourceText(req) {
   if (!req.file) {
     return (req.body.topic || "").trim();
@@ -95,13 +115,21 @@ async function getSourceText(req) {
 
   const name = req.file.originalname.toLowerCase();
 
-    if (name.endsWith(".pdf")) {
-    const fresh = Buffer.alloc(req.file.buffer.length);
-    req.file.buffer.copy(fresh);
-    console.log("pdf bytes:", req.file.size, "offset:", req.file.buffer.byteOffset);
-    const parsed = await pdfParse(fresh);
-    return parsed.text;
+  if (name.endsWith(".pdf")) {
+    try {
+      // Create a clean, dedicated buffer sequence directly from the uploaded file
+      const fresh = Buffer.from(req.file.buffer);
+      console.log("Processing PDF bytes:", fresh.length);
+      
+      const parsed = await pdfParse(fresh);
+      return parsed.text;
+    } catch (pdfErr) {
+      console.error("PDF Parsing Library Error:", pdfErr.message);
+      // Throwing BAD_TYPE maps directly to your existing error response handler below
+      throw new Error("BAD_TYPE");
+    }
   }
+  
   if (name.endsWith(".txt")) {
     return req.file.buffer.toString("utf8");
   }
