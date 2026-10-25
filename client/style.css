@@ -261,3 +261,55 @@ main {
 .saved .empty {
   color: #a5a6c2;
 }
+
+.options-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+  color: #a5a6c2;
+  font-size: 0.9rem;
+}
+
+.options-row select {
+  margin-left: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #2c2e4d;
+  background: #181a33;
+  color: #fff;
+}
+
+.file-label {
+  padding: 8px 14px;
+  border: 1px dashed #7c5cff;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.file-label:hover {
+  background: #181a33;
+}
+
+.file-name {
+  color: #fff;
+}
+
+.clear-file {
+  background: transparent;
+  border: none;
+  color: #ff8a8a;
+  cursor: pointer;
+}
+
+.explanation {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-left: 3px solid #7c5cff;
+  background: #12142b;
+  color: #c9cae6;
+  border-radius: 4px;
+  line-height: 1.5;
+}

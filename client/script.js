@@ -9,9 +9,39 @@ const submitQuiz = document.getElementById("submitQuiz");
 const scoreText = document.getElementById("scoreText");
 const saveBtn = document.getElementById("saveBtn");
 const savedList = document.getElementById("savedList");
+const difficultySelect = document.getElementById("difficulty");
+const cardCountSelect = document.getElementById("cardCount");
+const fileInput = document.getElementById("fileInput");
+const fileName = document.getElementById("fileName");
+const clearFile = document.getElementById("clearFile");
 
 let currentQuiz = [];
 let lastDeck = null;
+let selectedFile = null;
+
+fileInput.addEventListener("change", function () {
+  const file = fileInput.files[0];
+
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    message.textContent = "That file is bigger than 5 MB.";
+    fileInput.value = "";
+    return;
+  }
+
+  message.textContent = "";
+  selectedFile = file;
+  fileName.textContent = file.name;
+  clearFile.classList.remove("hidden");
+});
+
+clearFile.addEventListener("click", function () {
+  selectedFile = null;
+  fileInput.value = "";
+  fileName.textContent = "";
+  clearFile.classList.add("hidden");
+});
 
 function renderCards(cards) {
   cardGrid.innerHTML = "";
@@ -85,6 +115,13 @@ function checkAnswers() {
       correct++;
     } else if (chosen) {
       options[Number(chosen.value)].classList.add("wrong");
+    }
+
+    if (q.explanation) {
+      const note = document.createElement("p");
+      note.className = "explanation";
+      note.textContent = "Why: " + q.explanation;
+      blocks[qIndex].appendChild(note);
     }
   });
 
@@ -181,8 +218,8 @@ submitQuiz.addEventListener("click", checkAnswers);
 generateBtn.addEventListener("click", async function () {
   const topic = topicInput.value.trim();
 
-  if (topic === "") {
-    message.textContent = "Please enter a topic first.";
+  if (topic === "" && !selectedFile) {
+    message.textContent = "Enter a topic or upload a file first.";
     return;
   }
 
@@ -193,11 +230,18 @@ generateBtn.addEventListener("click", async function () {
   quizSection.classList.add("hidden");
   saveBtn.classList.add("hidden");
 
+  const formData = new FormData();
+  formData.append("topic", topic);
+  formData.append("difficulty", difficultySelect.value);
+  formData.append("count", cardCountSelect.value);
+  if (selectedFile) {
+    formData.append("file", selectedFile);
+  }
+
   try {
     const res = await fetch("/api/generate", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic: topic })
+      body: formData
     });
     const data = await res.json();
 
@@ -207,7 +251,8 @@ generateBtn.addEventListener("click", async function () {
       renderCards(data.flashcards);
       renderQuiz(data.quiz);
 
-      lastDeck = { topic: topic, flashcards: data.flashcards, quiz: data.quiz };
+      const deckTitle = selectedFile ? selectedFile.name : topic;
+      lastDeck = { topic: deckTitle, flashcards: data.flashcards, quiz: data.quiz };
       saveBtn.textContent = "Save this deck";
       saveBtn.disabled = false;
       saveBtn.classList.remove("hidden");
