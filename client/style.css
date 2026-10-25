@@ -146,3 +146,118 @@ main {
   background: #7c5cff;
   transform: rotateY(180deg);
 }
+
+.quiz {
+  margin-top: 50px;
+}
+
+.quiz h2 {
+  margin-bottom: 20px;
+}
+
+.question-block {
+  background: #181a33;
+  border: 1px solid #2c2e4d;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.question-block p {
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.option {
+  display: block;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  border: 1px solid #2c2e4d;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.option:hover {
+  border-color: #7c5cff;
+}
+
+.option input {
+  margin-right: 10px;
+}
+
+.option.correct {
+  background: #1d4d33;
+  border-color: #3ecf74;
+}
+
+.option.wrong {
+  background: #5a2230;
+  border-color: #ff6b81;
+}
+
+.submit-btn {
+  padding: 14px 26px;
+  border: none;
+  border-radius: 10px;
+  background: #7c5cff;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.score {
+  margin-top: 20px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #7c5cff;
+}
+
+#saveBtn {
+  margin-top: 20px;
+}
+
+.saved {
+  margin-top: 60px;
+}
+
+.saved h2 {
+  margin-bottom: 16px;
+}
+
+.saved ul {
+  list-style: none;
+}
+
+.saved li {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.saved .open-btn {
+  flex: 1;
+  text-align: left;
+  padding: 12px 16px;
+  background: #181a33;
+  color: #fff;
+  border: 1px solid #2c2e4d;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.saved .open-btn:hover {
+  border-color: #7c5cff;
+}
+
+.saved .delete-btn {
+  padding: 12px 16px;
+  background: transparent;
+  color: #ff8a8a;
+  border: 1px solid #5a2230;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.saved .empty {
+  color: #a5a6c2;
+}
