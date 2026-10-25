@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrainSprint</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Brain<span>Sprint</span></h1>
+    <p>Type a topic and get flashcards in seconds</p>
+  </header>
+
+  <main>
+    <div class="input-row">
+      <input type="text" id="topicInput" placeholder="e.g. Data Structures, World War II">
+      <button id="generateBtn">Generate</button>
+    </div>
+
+    <div id="loader" class="loader hidden"></div>
+    <p id="message" class="message"></p>
+
+    <section id="cardGrid" class="card-grid"></section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
