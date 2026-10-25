@@ -95,8 +95,11 @@ async function getSourceText(req) {
 
   const name = req.file.originalname.toLowerCase();
 
-  if (name.endsWith(".pdf")) {
-    const parsed = await pdfParse(req.file.buffer);
+    if (name.endsWith(".pdf")) {
+    const fresh = Buffer.alloc(req.file.buffer.length);
+    req.file.buffer.copy(fresh);
+    console.log("pdf bytes:", req.file.size, "offset:", req.file.buffer.byteOffset);
+    const parsed = await pdfParse(fresh);
     return parsed.text;
   }
   if (name.endsWith(".txt")) {
