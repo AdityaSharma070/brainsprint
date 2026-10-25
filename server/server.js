@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const multer = require("multer");
-const pdfParse = require("pdf-parse/lib/pdf-parse.js");
+const pdfParse = require("pdf-parse-fork");
 const mongoose = require("mongoose");
 const { GoogleGenAI } = require("@google/genai");
 
@@ -108,6 +108,35 @@ function readUpload(req, res, next) {
 
 //   throw new Error("BAD_TYPE");
 // }
+// async function getSourceText(req) {
+//   if (!req.file) {
+//     return (req.body.topic || "").trim();
+//   }
+
+//   const name = req.file.originalname.toLowerCase();
+
+//   if (name.endsWith(".pdf")) {
+//     try {
+//       // Create a clean, dedicated buffer sequence directly from the uploaded file
+//       const fresh = Buffer.from(req.file.buffer);
+//       console.log("Processing PDF bytes:", fresh.length);
+      
+//       const parsed = await pdfParse(fresh);
+//       return parsed.text;
+//     } catch (pdfErr) {
+//       console.error("PDF Parsing Library Error:", pdfErr.message);
+//       // Throwing BAD_TYPE maps directly to your existing error response handler below
+//       throw new Error("BAD_TYPE");
+//     }
+//   }
+  
+//   if (name.endsWith(".txt")) {
+//     return req.file.buffer.toString("utf8");
+//   }
+
+//   throw new Error("BAD_TYPE");
+// }
+
 async function getSourceText(req) {
   if (!req.file) {
     return (req.body.topic || "").trim();
@@ -116,18 +145,10 @@ async function getSourceText(req) {
   const name = req.file.originalname.toLowerCase();
 
   if (name.endsWith(".pdf")) {
-    try {
-      // Create a clean, dedicated buffer sequence directly from the uploaded file
-      const fresh = Buffer.from(req.file.buffer);
-      console.log("Processing PDF bytes:", fresh.length);
-      
-      const parsed = await pdfParse(fresh);
-      return parsed.text;
-    } catch (pdfErr) {
-      console.error("PDF Parsing Library Error:", pdfErr.message);
-      // Throwing BAD_TYPE maps directly to your existing error response handler below
-      throw new Error("BAD_TYPE");
-    }
+    console.log("Processing PDF bytes securely:", req.file.size);
+    // pdf-parse-fork will safely handle req.file.buffer on Render without throwing XRef errors
+    const parsed = await pdfParse(req.file.buffer); 
+    return parsed.text;
   }
   
   if (name.endsWith(".txt")) {
