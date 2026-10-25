@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const multer = require("multer");
-const { pdfToText } = require("pdf-to-text");
+const pdfjs = require("pdfjs-dist");
 const mongoose = require("mongoose");
 const { GoogleGenAI } = require("@google/genai");
 
@@ -118,18 +118,29 @@ async function getSourceText(req) {
   const name = req.file.originalname.toLowerCase();
 
   if (name.endsWith(".pdf")) {
-    console.log("Processing PDF bytes securely via pdf-to-text:", req.file.size);
+    console.log("Processing PDF securely using pure JS parser:", req.file.size);
     
-    // Convert the buffer to text using a Promise wrapper
-    return new Promise((resolve, reject) => {
-      pdfToText(req.file.buffer, (err, text) => {
-        if (err) {
-          console.error("PDF Parsing failed:", err.message);
-          return reject(new Error("BAD_TYPE"));
-        }
-        resolve(text);
-      });
-    });
+    try {
+      // Convert buffer cleanly to a Uint8Array format that pdfjs handles natively
+      const data = new Uint8Array(req.file.buffer);
+      const loadingTask = pdfjs.getDocument({ data: data });
+      const pdf = await loadingTask.promise;
+      
+      let fullText = "";
+      
+      // Loop through all pages sequentially to extract the text strings securely
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(" ");
+        fullText += pageText + " ";
+      }
+      
+      return fullText.trim();
+    } catch (parseError) {
+      console.error("Mozilla PDF parser failed:", parseError.message);
+      throw new Error("BAD_TYPE");
+    }
   }
   
   if (name.endsWith(".txt")) {
